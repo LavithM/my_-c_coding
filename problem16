@@ -1,0 +1,103 @@
+//`1. University Student Record Management`  
+`Scenario:`  
+A `university` maintains student records, 
+including `Roll No, Name, Course, and Marks`. 
+The system should:  
+- Store details using `structures`  
+- Save records to a `file`  
+- Allow searching for a `student by Roll No`  
+
+`Input Example:`  
+```
+Enter number of students: 3
+Student 1: 101, Alice, Computer Science, 85
+Student 2: 102, Bob, Mechanical, 90
+Student 3: 103, Charlie, Electrical, 78
+
+Enter Roll No to search: 102
+```
+
+`Output Example:`  
+```
+Student Found: Bob, Mechanical, Marks: 90
+Record saved in "students.txt"
+```//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_NAME_LENGTH 50
+#define MAX_COURSE_LENGTH 50
+
+// Structure to represent a student
+struct Student {
+    int rollNo;
+    char name[MAX_NAME_LENGTH];
+    char course[MAX_COURSE_LENGTH];
+    int marks;
+};
+
+// Function to save student records to a file
+void saveRecords(struct Student *students, int numStudents) {
+    FILE *file = fopen("students.txt", "w");
+    if (file == NULL) {
+        perror("Error opening file");
+        exit(1);
+    }
+
+    for (int i = 0; i < numStudents; i++) {
+        fprintf(file, "%d,%s,%s,%d\n", students[i].rollNo, students[i].name, students[i].course, students[i].marks);
+    }
+
+    fclose(file);
+    printf("Record saved in \"students.txt\"\n");
+}
+
+// Function to search for a student by Roll No
+void searchStudent(struct Student *students, int numStudents, int rollNo) {
+    for (int i = 0; i < numStudents; i++) {
+        if (students[i].rollNo == rollNo) {
+            printf("Student Found: %s, %s, Marks: %d\n", students[i].name, students[i].course, students[i].marks);
+            return; // Exit after finding the student
+        }
+    }
+    printf("Student with Roll No %d not found.\n", rollNo);
+}
+
+int main() {
+    int numStudents;
+
+    printf("Enter number of students: ");
+    scanf("%d", &numStudents);
+
+    // Allocate memory for the student array dynamically
+    struct Student *students = (struct Student *)malloc(numStudents * sizeof(struct Student));
+
+    if (students == NULL) {
+        perror("Memory allocation failed");
+        exit(1);
+    }
+
+    // Input student details
+    for (int i = 0; i < numStudents; i++) {
+        printf("Student %d: ", i + 1);
+        // Use a space before %[^,] to handle potential leading whitespace in the input
+        scanf("%d,%[^,],%[^,],%d", &students[i].rollNo, students[i].name, students[i].course, &students[i].marks);
+        // Clear the input buffer to prevent issues with subsequent inputs
+        while (getchar() != '\n'); // Important!
+    }
+
+    // Save records to file
+    saveRecords(students, numStudents);
+
+    // Search for a student
+    int searchRollNo;
+    printf("\nEnter Roll No to search: ");
+    scanf("%d", &searchRollNo);
+    searchStudent(students, numStudents, searchRollNo);
+
+    // Free the dynamically allocated memory
+    free(students);
+
+    return 0;
+}
