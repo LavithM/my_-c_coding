@@ -1,0 +1,98 @@
+//`2. Online Shopping Order Processing`  
+`Scenario:`  
+An `online shopping system` records orders with `Order ID, Customer Name, Product, and Amount`. The system should:  
+- Store and update orders using `structures`  
+- Write order details to a `file`  
+- Allow `retrieval of order details`  
+
+`Input Example:`  
+```
+Enter number of orders: 2
+Order 1: 301, Alice, Laptop, ₹60000
+Order 2: 302, Bob, Mobile, ₹25000
+
+Enter Order ID to search: 301
+```
+
+`Output Example:`  
+```
+Order Found: Alice - Laptop - ₹60000
+Record saved in "orders.txt"
+```//    
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_NAME_LENGTH 50
+#define MAX_PRODUCT_LENGTH 50
+
+// Structure to represent an order
+struct Order {
+    int orderID;
+    char customerName[MAX_NAME_LENGTH];
+    char product[MAX_PRODUCT_LENGTH];
+    int amount;
+};
+
+// Function to save order records to a file
+void saveOrders(struct Order *orders, int numOrders) {
+    FILE *file = fopen("orders.txt", "w");
+    if (file == NULL) {
+        perror("Error opening file");
+        exit(1);
+    }
+
+    for (int i = 0; i < numOrders; i++) {
+        fprintf(file, "%d,%s,%s,%d\n", orders[i].orderID, orders[i].customerName, orders[i].product, orders[i].amount);
+    }
+
+    fclose(file);
+    printf("Record saved in \"orders.txt\"\n");
+}
+
+// Function to retrieve order details by Order ID
+void retrieveOrder(struct Order *orders, int numOrders, int orderID) {
+    for (int i = 0; i < numOrders; i++) {
+        if (orders[i].orderID == orderID) {
+            printf("Order Found: %s - %s - ₹%d\n", orders[i].customerName, orders[i].product, orders[i].amount);
+            return; // Exit after finding the order
+        }
+    }
+    printf("Order with Order ID %d not found.\n", orderID);
+}
+
+int main() {
+    int numOrders;
+
+    printf("Enter number of orders: ");
+    scanf("%d", &numOrders);
+
+    // Dynamically allocate memory for the orders array
+    struct Order *orders = (struct Order *)malloc(numOrders * sizeof(struct Order));
+
+    if (orders == NULL) {
+        perror("Memory allocation failed");
+        exit(1);
+    }
+
+    // Input order details
+    for (int i = 0; i < numOrders; i++) {
+        printf("Order %d: ", i + 1);
+        scanf("%d,%[^,],%[^,],%d", &orders[i].orderID, orders[i].customerName, orders[i].product, &orders[i].amount);
+        while (getchar() != '\n'); // Clear input buffer (important!)
+    }
+
+    // Save records to file
+    saveOrders(orders, numOrders);
+
+    // Retrieve order details
+    int searchOrderID;
+    printf("\nEnter Order ID to search: ");
+    scanf("%d", &searchOrderID);
+    retrieveOrder(orders, numOrders, searchOrderID);
+
+    // Free the dynamically allocated memory
+    free(orders);
+
+    return 0;
+}
