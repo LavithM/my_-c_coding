@@ -1,0 +1,100 @@
+//`3. Weather Monitoring System`  
+`Scenario:`  
+A `weather station` records temperature and humidity 
+for `different cities`. The system should:  
+- Store records using `structures`  
+- Allow searching for `temperature of a specific city`  
+- Save data to a `file`  
+
+`Input Example:`  
+```
+Enter number of cities: 3
+City 1: Mumbai, 32°C, 80%
+City 2: Delhi, 38°C, 60%
+City 3: Chennai, 35°C, 75%
+
+Enter city name to search: Delhi
+```
+
+`Output Example:`  
+```
+Weather in Delhi: 38°C, 60% Humidity
+Data saved in "weather_data.txt"
+```//
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_CITY_LENGTH 50
+
+// Structure to represent weather data for a city
+struct Weather {
+    char city[MAX_CITY_LENGTH];
+    float temperature;
+    int humidity;
+};
+
+// Function to save weather data to a file
+void saveWeatherData(struct Weather *weatherData, int numCities) {
+    FILE *file = fopen("weather_data.txt", "w");
+    if (file == NULL) {
+        perror("Error opening file");
+        exit(1);
+    }
+
+    for (int i = 0; i < numCities; i++) {
+        fprintf(file, "%s,%.1f,%d\n", weatherData[i].city, weatherData[i].temperature, weatherData[i].humidity);
+    }
+
+    fclose(file);
+    printf("Data saved in \"weather_data.txt\"\n");
+}
+
+// Function to search for weather data by city name
+void searchWeather(struct Weather *weatherData, int numCities, const char *cityName) {
+    for (int i = 0; i < numCities; i++) {
+        if (strcmp(weatherData[i].city, cityName) == 0) {
+            printf("Weather in %s: %.1f°C, %d%% Humidity\n", weatherData[i].city, weatherData[i].temperature, weatherData[i].humidity);
+            return; // Exit after finding the city
+        }
+    }
+    printf("Weather data for %s not found.\n", cityName);
+}
+
+int main() {
+    int numCities;
+
+    printf("Enter number of cities: ");
+    scanf("%d", &numCities);
+
+    // Dynamically allocate memory for the weather data array
+    struct Weather *weatherData = (struct Weather *)malloc(numCities * sizeof(struct Weather));
+
+    if (weatherData == NULL) {
+        perror("Memory allocation failed");
+        exit(1);
+    }
+
+    // Input weather data
+    for (int i = 0; i < numCities; i++) {
+        printf("City %d: ", i + 1);
+        // Improved scanf to handle the degree symbol and percentage sign
+        scanf("%[^,],%f°C,%d%%", weatherData[i].city, &weatherData[i].temperature, &weatherData[i].humidity);
+        while (getchar()!= '\n'); // Clear input buffer (important!)
+    }
+
+    // Save data to file
+    saveWeatherData(weatherData, numCities);
+
+    // Search for weather data
+    char searchCity[MAX_CITY_LENGTH];
+    printf("\nEnter city name to search: ");
+    scanf("%s", searchCity);  // No need to clear the buffer here as we're reading only the city name.
+    searchWeather(weatherData, numCities, searchCity);
+
+    // Free the dynamically allocated memory
+    free(weatherData);
+
+    return 0;
+}
